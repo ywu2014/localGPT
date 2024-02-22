@@ -114,8 +114,8 @@ EMBEDDING_MODEL_NAME = "hkunlp/instructor-large"  # Uses 1.5 GB of VRAM (High Ac
 #### (FOR HF MODELS)
 ####
 
-MODEL_ID = "FlagAlpha/Llama2-Chinese-7b-Chat"
-MODEL_BASENAME = None
+# MODEL_ID = "FlagAlpha/Llama2-Chinese-7b-Chat"
+# MODEL_BASENAME = None
 # MODEL_ID = "NousResearch/Llama-2-7b-chat-hf"
 # MODEL_BASENAME = None
 # MODEL_ID = "TheBloke/vicuna-7B-1.1-HF"
@@ -189,3 +189,12 @@ MODEL_BASENAME = None
 ####
 # MODEL_ID = "TheBloke/Llama-2-7B-Chat-AWQ"
 # MODEL_BASENAME = "model.safetensors.awq"
+
+####
+#### (FOR Ollama MODELS)
+####
+
+MODEL_ID = "llama2-chinese:latest"
+MODEL_BASENAME = None
+# OLLAMA_HOST="localhost"p
+# OLLAMA_PORT="11434"

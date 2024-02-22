@@ -8,6 +8,7 @@ from langchain.embeddings import HuggingFaceInstructEmbeddings
 from langchain.llms import HuggingFacePipeline
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler  # for streaming response
 from langchain.callbacks.manager import CallbackManager
+from langchain.llms import Ollama
 
 callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
 
@@ -96,7 +97,7 @@ def load_model(device_type, model_id, model_basename=None, LOGGING=logging):
     return local_llm
 
 
-def retrieval_qa_pipline(device_type, use_history, promptTemplate_type="llama"):
+def retrieval_qa_pipline(device_type, use_history, promptTemplate_type="llama", use_ollama=False, ollama_config=None):
     """
     Initializes and returns a retrieval-based Question Answering (QA) pipeline.
 
@@ -135,7 +136,14 @@ def retrieval_qa_pipline(device_type, use_history, promptTemplate_type="llama"):
     prompt, memory = get_prompt_template(promptTemplate_type=promptTemplate_type, history=use_history)
 
     # load the llm pipeline
-    llm = load_model(device_type, model_id=MODEL_ID, model_basename=MODEL_BASENAME, LOGGING=logging)
+    if use_ollama:
+        llm = Ollama(base_url=f"http://{ollama_config['host']}:{ollama_config['port']}", 
+                 model=MODEL_ID,
+                 verbose=True,
+                #  callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
+                 )
+    else:
+        llm = load_model(device_type, model_id=MODEL_ID, model_basename=MODEL_BASENAME, LOGGING=logging)
 
     if use_history:
         qa = RetrievalQA.from_chain_type(
@@ -246,7 +254,7 @@ def main(device_type, show_sources, use_history, model_type, save_qa):
     if not os.path.exists(MODELS_PATH):
         os.mkdir(MODELS_PATH)
 
-    qa = retrieval_qa_pipline(device_type, use_history, promptTemplate_type=model_type)
+    qa = retrieval_qa_pipline(device_type, use_history, promptTemplate_type=model_type, use_ollama=True, ollama_config={"host": "localhost", "port": 11434})
     # Interactive questions and answers
     while True:
         query = input("\nEnter a query: ")
