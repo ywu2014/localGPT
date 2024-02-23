@@ -18,7 +18,7 @@ vectorstore = Chroma(
     embedding_function=embeddings,
 )
 
-query = "检查安全门闭锁装置包括哪些内容?"
+query = "什么是工作日历?"
 docs = vectorstore.similarity_search(query, k=3)
 for doc in docs:
     # print(doc.page_content)

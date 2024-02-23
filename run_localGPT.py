@@ -39,7 +39,7 @@ from constants import (
 )
 
 
-def load_model(device_type, model_id, model_basename=None, LOGGING=logging):
+def load_model(device_type, model_id, model_basename=None, LOGGING=logging, use_ollama=False, ollama_config=None):
     """
     Select a model for text generation using the HuggingFace library.
     If you are running this for the first time, it will download a model for you.
@@ -57,6 +57,16 @@ def load_model(device_type, model_id, model_basename=None, LOGGING=logging):
     Raises:
         ValueError: If an unsupported model or device type is provided.
     """
+    # load the llm pipeline
+    if use_ollama:
+        logging.info(f"Use Ollama Model: {model_id}, on: {ollama_config['host']}:{ollama_config['port']}")
+        local_llm = Ollama(base_url=f"http://{ollama_config['host']}:{ollama_config['port']}", 
+                 model=MODEL_ID,
+                 verbose=True,
+                #  callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
+                 )
+        return local_llm
+
     logging.info(f"Loading Model: {model_id}, on: {device_type}")
     logging.info("This action can take a few minutes!")
 
@@ -136,14 +146,7 @@ def retrieval_qa_pipline(device_type, use_history, promptTemplate_type="llama", 
     prompt, memory = get_prompt_template(promptTemplate_type=promptTemplate_type, history=use_history)
 
     # load the llm pipeline
-    if use_ollama:
-        llm = Ollama(base_url=f"http://{ollama_config['host']}:{ollama_config['port']}", 
-                 model=MODEL_ID,
-                 verbose=True,
-                #  callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
-                 )
-    else:
-        llm = load_model(device_type, model_id=MODEL_ID, model_basename=MODEL_BASENAME, LOGGING=logging)
+    llm = load_model(device_type, model_id=MODEL_ID, model_basename=MODEL_BASENAME, LOGGING=logging, use_ollama=use_ollama, ollama_config=ollama_config)
 
     if use_history:
         qa = RetrievalQA.from_chain_type(
